@@ -47,6 +47,7 @@ dependencies {
     compile spinnaker.dependency('jacksonDatabind')
     testCompile spinnaker.dependency('spockSpring')
     testCompile spinnaker.dependency('springTest')
+    compile 'org.springframework.cloud:spring-cloud-starter-config:1.0.3.RELEASE'
 }
 
 tasks.withType(org.springframework.boot.gradle.run.BootRunTask) {
