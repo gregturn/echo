@@ -16,6 +16,7 @@
 
 package com.netflix.spinnaker.echo.notification
 
+import com.netflix.spinnaker.echo.config.SpinnakerConfigurationProperties
 import com.netflix.spinnaker.echo.email.EmailNotificationService
 import com.netflix.spinnaker.echo.model.Event
 import org.apache.velocity.VelocityContext
@@ -31,7 +32,11 @@ class EmailNotificationAgentSpec extends Specification {
   def mailService = Stub(EmailNotificationService)
   def engine = Mock(VelocityEngine)
   @Subject
-  def agent = new EmailNotificationAgent(mailService: mailService, engine: engine)
+  def agent = new EmailNotificationAgent(
+          mailService: mailService,
+          engine: engine,
+          spinnakerProperties: new SpinnakerConfigurationProperties(baseUrl: "SPINNAKER_URL")
+  )
 
   @Unroll
   def "subject is correct for a #type #status notification"() {

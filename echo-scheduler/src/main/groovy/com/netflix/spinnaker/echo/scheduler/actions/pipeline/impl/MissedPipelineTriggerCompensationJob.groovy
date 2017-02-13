@@ -16,6 +16,7 @@
 
 package com.netflix.spinnaker.echo.scheduler.actions.pipeline.impl
 
+import com.netflix.spinnaker.echo.config.SchedulerConfigurationProperties
 import com.netflix.spinnaker.echo.model.Pipeline
 import com.netflix.spinnaker.echo.model.Trigger
 import com.netflix.spinnaker.echo.pipelinetriggers.PipelineCache
@@ -25,7 +26,6 @@ import com.netflix.spinnaker.echo.pipelinetriggers.orca.PipelineInitiator
 import groovy.util.logging.Slf4j
 import org.quartz.CronExpression
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.actuate.metrics.CounterService
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 import org.springframework.context.ApplicationListener
@@ -40,7 +40,6 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
-
 /**
  * Finds and executes all pipeline triggers that should have run in the last configured time window during startup.
  * This job will wait until the {@link com.netflix.spinnaker.echo.pipelinetriggers.PipelineCache} has run prior to
@@ -68,9 +67,8 @@ class MissedPipelineTriggerCompensationJob implements ApplicationListener<Contex
                                        OrcaService orcaService,
                                        PipelineInitiator pipelineInitiator,
                                        CounterService counter,
-                                       @Value('${scheduler.compensationJob.windowMs:1800000}') long compensationWindowMs,
-                                       @Value('${scheduler.cron.timezone:America/Los_Angeles}') String timeZoneId) {
-    this(scheduler, pipelineCache, orcaService, pipelineInitiator, counter, compensationWindowMs, timeZoneId, null)
+                                       SchedulerConfigurationProperties schedulerConfigurationProperties) {
+    this(scheduler, pipelineCache, orcaService, pipelineInitiator, counter, schedulerConfigurationProperties, null)
   }
 
   MissedPipelineTriggerCompensationJob(Scheduler scheduler,
@@ -78,15 +76,14 @@ class MissedPipelineTriggerCompensationJob implements ApplicationListener<Contex
                                        OrcaService orcaService,
                                        PipelineInitiator pipelineInitiator,
                                        CounterService counter,
-                                       @Value('${scheduler.compensationJob.windowMs:1800000}') long compensationWindowMs,
-                                       @Value('${scheduler.cron.timezone:America/Los_Angeles}') String timeZoneId,
+                                       SchedulerConfigurationProperties schedulerConfigurationProperties,
                                        DateContext dateContext) {
     this.scheduler = scheduler
     this.pipelineCache = pipelineCache
     this.orcaService = orcaService
     this.pipelineInitiator = pipelineInitiator
     this.counter = counter
-    this.dateContext = dateContext ?: DateContext.fromCompensationWindow(timeZoneId, compensationWindowMs)
+    this.dateContext = dateContext ?: DateContext.fromCompensationWindow(schedulerConfigurationProperties.cron.timezone, schedulerConfigurationProperties.compensationJob.windowMs)
   }
 
   @Override

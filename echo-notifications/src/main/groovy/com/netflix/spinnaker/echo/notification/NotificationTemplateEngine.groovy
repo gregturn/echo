@@ -18,24 +18,25 @@ package com.netflix.spinnaker.echo.notification
 
 import com.google.common.annotations.VisibleForTesting
 import com.netflix.spinnaker.echo.api.Notification
+import com.netflix.spinnaker.echo.config.SpinnakerConfigurationProperties
 import groovy.transform.PackageScope
 import groovy.util.logging.Slf4j
 import org.apache.velocity.app.VelocityEngine
 import org.jsoup.Jsoup
 import org.jsoup.examples.HtmlToPlainText
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.ui.velocity.VelocityEngineUtils
 
 @Slf4j
 @Component
 class NotificationTemplateEngine {
+
     @Autowired
     VelocityEngine engine
 
-    @Value('${spinnaker.baseUrl}')
-    String spinnakerUrl
+    @Autowired
+    SpinnakerConfigurationProperties properties
 
     String build(Notification notification, Type type) {
         VelocityEngineUtils.mergeTemplateIntoString(
@@ -43,7 +44,7 @@ class NotificationTemplateEngine {
             determinateTemplate(engine, notification.templateGroup, type, notification.notificationType),
             "UTF-8",
             [
-                baseUrl     : spinnakerUrl,
+                baseUrl     : properties.baseUrl,
                 notification: notification,
                 htmlToText  : new HtmlToPlainTextFormatter()
             ]

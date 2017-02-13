@@ -30,8 +30,12 @@ import javax.validation.Valid
 @CompileStatic
 @ConfigurationProperties(prefix = 'rest')
 class RestProperties {
+
   @Valid
   List<RestEndpointConfiguration> endpoints
+
+  String defaultEventName = 'spinnaker_events'
+  String defaultFieldName = 'payload'
 
   static class RestEndpointConfiguration {
     String eventName

@@ -22,6 +22,8 @@ ext {
 apply plugin: 'spring-boot'
 apply plugin: 'spinnaker.package'
 
+apply from: "${rootProject.projectDir}/configurations-all.gradle"
+
 dependencies {
     compile project(':echo-core')
     compile project(':echo-model')
@@ -35,6 +37,7 @@ dependencies {
     compile spinnaker.dependency('korkWeb')
     compile spinnaker.dependency('bootActuator')
     compile spinnaker.dependency('bootWeb')
+    compile('org.apache.tomcat:tomcat-juli:8.0.24')
     compile spinnaker.dependency('jacksonDatabind')
     testCompile spinnaker.dependency('spockSpring')
     testCompile spinnaker.dependency('springTest')

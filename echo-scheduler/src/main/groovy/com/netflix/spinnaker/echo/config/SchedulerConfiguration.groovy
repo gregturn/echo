@@ -15,6 +15,7 @@
  */
 
 package com.netflix.spinnaker.echo.config
+
 import com.netflix.astyanax.Keyspace
 import com.netflix.fenzo.triggers.TriggerOperator
 import com.netflix.fenzo.triggers.persistence.InMemoryTriggerDao
@@ -30,8 +31,9 @@ import com.netflix.scheduledactions.persistence.cassandra.CassandraExecutionDao
 import com.netflix.scheduledactions.persistence.cassandra.CassandraTriggerDao
 import com.netflix.scheduledactions.web.controllers.ActionInstanceController
 import com.squareup.okhttp.OkHttpClient
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
@@ -42,8 +44,12 @@ import java.util.concurrent.TimeUnit
 
 @Configuration
 @ConditionalOnExpression('${scheduler.enabled:false}')
+@EnableConfigurationProperties([SchedulerConfigurationProperties, RetrofitConfigurationProperties])
 @ComponentScan(["com.netflix.spinnaker.echo.scheduler", "com.netflix.scheduledactions"])
 class SchedulerConfiguration {
+
+    @Autowired
+    SchedulerConfigurationProperties schedulerConfigurationProperties
 
     @Bean
     @ConditionalOnExpression('${spinnaker.cassandra.enabled:true}')
@@ -87,16 +93,14 @@ class SchedulerConfiguration {
     }
 
     @Bean
-    TriggerOperator triggerOperator(TriggerDao triggerDao,
-                                    @Value('${scheduler.threadPoolSize:10}') int threadPoolSize) {
-        new TriggerOperator(triggerDao, threadPoolSize)
+    TriggerOperator triggerOperator(TriggerDao triggerDao) {
+        new TriggerOperator(triggerDao, schedulerConfigurationProperties.threadPoolSize)
     }
 
     @Bean
     ActionsOperator actionsOperator(TriggerOperator triggerOperator,
-                                    DaoConfigurer daoConfigurer,
-                                    @Value('${scheduler.threadPoolSize:10}') int threadPoolSize) {
-        new ActionsOperator(triggerOperator, daoConfigurer, threadPoolSize)
+                                    DaoConfigurer daoConfigurer) {
+        new ActionsOperator(triggerOperator, daoConfigurer, schedulerConfigurationProperties.threadPoolSize)
     }
 
     @Bean
@@ -105,11 +109,10 @@ class SchedulerConfiguration {
     }
 
     @Bean
-    Client retrofitClient(@Value('${retrofit.connectTimeoutMillis:10000}') long connectTimeoutMillis,
-                          @Value('${retrofit.readTimeoutMillis:15000}') long readTimeoutMillis) {
+    Client retrofitClient(RetrofitConfigurationProperties retrofitConfigurationProperties) {
         OkHttpClient okHttpClient = new OkHttpClient();
-        okHttpClient.setConnectTimeout(connectTimeoutMillis, TimeUnit.MILLISECONDS);
-        okHttpClient.setReadTimeout(readTimeoutMillis, TimeUnit.MILLISECONDS);
+        okHttpClient.setConnectTimeout(retrofitConfigurationProperties.connectTimeoutMillis, TimeUnit.MILLISECONDS);
+        okHttpClient.setReadTimeout(retrofitConfigurationProperties.readTimeoutMillis, TimeUnit.MILLISECONDS);
         new OkClient(okHttpClient);
     }
 }

@@ -16,15 +16,15 @@
 
 package com.netflix.spinnaker.echo.config
 
-import static retrofit.Endpoints.newFixedEndpoint
-
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.netflix.spinnaker.echo.twilio.TwilioConfigurationProperties
 import com.netflix.spinnaker.echo.twilio.TwilioService
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.apache.commons.codec.binary.Base64
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import retrofit.Endpoint
@@ -33,21 +33,25 @@ import retrofit.RestAdapter
 import retrofit.client.Client
 import retrofit.converter.JacksonConverter
 
+import static retrofit.Endpoints.newFixedEndpoint
+
 @Configuration
 @ConditionalOnProperty('twilio.enabled')
+@EnableConfigurationProperties(TwilioConfigurationProperties)
 @Slf4j
 @CompileStatic
 class TwilioConfig {
 
+    @Autowired
+    TwilioConfigurationProperties properties
+
     @Bean
-    Endpoint twilioEndpoint(@Value('${twilio.baseUrl}') String twilioBaseUrl) {
-        newFixedEndpoint(twilioBaseUrl)
+    Endpoint twilioEndpoint() {
+        newFixedEndpoint(properties.baseUrl)
     }
 
     @Bean
     TwilioService twilioService(
-            @Value('${twilio.account}') String username,
-            @Value('${twilio.token}') String password,
             Endpoint twilioEndpoint,
             Client retrofitClient,
             RestAdapter.LogLevel retrofitLogLevel) {
@@ -57,7 +61,7 @@ class TwilioConfig {
         RequestInterceptor authInterceptor = new RequestInterceptor() {
             @Override
             public void intercept(RequestInterceptor.RequestFacade request) {
-                String auth = "Basic " + Base64.encodeBase64String("${username}:${password}".getBytes())
+                String auth = "Basic " + Base64.encodeBase64String("${properties.account}:${properties.token}".getBytes())
                 request.addHeader("Authorization", auth)
             }
         }

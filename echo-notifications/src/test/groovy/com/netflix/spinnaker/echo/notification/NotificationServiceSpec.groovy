@@ -17,9 +17,12 @@
 package com.netflix.spinnaker.echo.notification
 
 import com.netflix.spinnaker.echo.api.Notification
+import com.netflix.spinnaker.echo.config.SpinnakerConfigurationProperties
+import com.netflix.spinnaker.echo.hipchat.HipchatConfigurationProperties
 import com.netflix.spinnaker.echo.hipchat.HipchatMessage
 import com.netflix.spinnaker.echo.hipchat.HipchatNotificationService
 import com.netflix.spinnaker.echo.hipchat.HipchatService
+import com.netflix.spinnaker.echo.twilio.TwilioConfigurationProperties
 import com.netflix.spinnaker.echo.twilio.TwilioNotificationService
 import com.netflix.spinnaker.echo.twilio.TwilioService
 import org.springframework.ui.velocity.VelocityEngineFactory
@@ -36,7 +39,7 @@ class NotificationServiceSpec extends Specification {
 
     notificationTemplateEngine = new NotificationTemplateEngine(
         engine: velocityEngineFactory.createVelocityEngine(),
-        spinnakerUrl: "SPINNAKER_URL"
+        properties: new SpinnakerConfigurationProperties(baseUrl: "SPINNAKER_URL")
     )
   }
 
@@ -44,7 +47,7 @@ class NotificationServiceSpec extends Specification {
     given:
     def hipchatService = Mock(HipchatService)
     def hipchatNotificationService = new HipchatNotificationService(
-        token: "token",
+        properties: new HipchatConfigurationProperties(token: "token"),
         notificationTemplateEngine: notificationTemplateEngine,
         hipchat: hipchatService
     )
@@ -68,8 +71,7 @@ class NotificationServiceSpec extends Specification {
     given:
     def twilioService = Mock(TwilioService)
     def twilioNotificationService = new TwilioNotificationService(
-        account: "account",
-        from: "222-333-4444",
+        properties: new TwilioConfigurationProperties(account: "account", from: "222-333-4444"),
         notificationTemplateEngine: notificationTemplateEngine,
         twilioService: twilioService
     )

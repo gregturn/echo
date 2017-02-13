@@ -16,10 +16,13 @@
 
 
 package com.netflix.spinnaker.echo.config
+
+import com.netflix.spinnaker.echo.slack.SlackConfigurationProperties
 import com.netflix.spinnaker.echo.slack.SlackService
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import retrofit.Endpoint
@@ -30,6 +33,7 @@ import static retrofit.Endpoints.newFixedEndpoint
 
 @Configuration
 @ConditionalOnProperty('slack.enabled')
+@EnableConfigurationProperties(SlackConfigurationProperties)
 @Slf4j
 @CompileStatic
 class SlackConfig {

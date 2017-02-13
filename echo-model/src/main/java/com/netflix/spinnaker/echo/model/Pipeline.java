@@ -32,7 +32,8 @@ import java.util.Map;
 @Builder
 @Wither
 @ToString(of = {"application", "name", "id"}, includeFieldNames = false)
-@Value public class Pipeline {
+@Value
+public class Pipeline {
   @JsonProperty
   @NonNull String application;
 

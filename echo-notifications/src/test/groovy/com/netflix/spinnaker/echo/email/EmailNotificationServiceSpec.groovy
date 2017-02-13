@@ -34,7 +34,7 @@ class EmailNotificationServiceSpec extends Specification {
 
   @Shared
   @Subject
-  EmailNotificationService service = new EmailNotificationService()
+  EmailNotificationService service = new EmailNotificationService(properties: new MailConfigurationProperties())
 
   @Shared
   GreenMail greenMail
@@ -48,7 +48,7 @@ class EmailNotificationServiceSpec extends Specification {
     sender.setPort(3025)
 
     service.javaMailSender = sender
-    service.from = 'me@localhost'
+    service.properties.from = 'me@localhost'
   }
 
   void cleanup() {
@@ -73,7 +73,7 @@ class EmailNotificationServiceSpec extends Specification {
     then:
     mail.subject == subject
     GreenMailUtil.getBody(mail) == message
-    GreenMailUtil.getAddressList(mail.from) == service.from
+    GreenMailUtil.getAddressList(mail.from) == service.properties.from
     GreenMailUtil.getAddressList(mail.getRecipients(Message.RecipientType.TO)) == to?.getAt(0)
     GreenMailUtil.getAddressList(mail.getRecipients(Message.RecipientType.CC)) == cc?.getAt(0)
 

@@ -19,16 +19,14 @@
 package com.netflix.spinnaker.echo.config
 
 import com.netflix.spinnaker.config.OkHttpClientConfiguration
+import com.netflix.spinnaker.echo.services.Front50Service
+import com.netflix.spinnaker.okhttp.OkHttpClientConfigurationProperties
 import com.squareup.okhttp.ConnectionPool
 import com.squareup.okhttp.OkHttpClient
-import org.springframework.beans.factory.annotation.Autowired
-
-import static retrofit.Endpoints.newFixedEndpoint
-
-import com.netflix.spinnaker.echo.services.Front50Service
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import retrofit.Endpoint
@@ -36,27 +34,24 @@ import retrofit.RestAdapter
 import retrofit.RestAdapter.LogLevel
 import retrofit.client.OkClient
 
+import static retrofit.Endpoints.newFixedEndpoint
+
 @Configuration
+@EnableConfigurationProperties(Front50ConfigurationProperties)
 @Slf4j
 @CompileStatic
 class Front50Config {
+
   @Autowired
   OkHttpClientConfiguration okHttpClientConfig
 
-  @Value('${okHttpClient.connectionPool.maxIdleConnections:5}')
-  int maxIdleConnections
-
-  @Value('${okHttpClient.connectionPool.keepAliveDurationMs:300000}')
-  int keepAliveDurationMs
-
-  @Value('${okHttpClient.retryOnConnectionFailure:true}')
-  boolean retryOnConnectionFailure
-
   @Bean
-  OkHttpClient okHttpClient() {
+  OkHttpClient okHttpClient(OkHttpClientConfigurationProperties okHttpClientConfigurationProperties) {
     def cli = okHttpClientConfig.create()
-    cli.connectionPool = new ConnectionPool(maxIdleConnections, keepAliveDurationMs)
-    cli.retryOnConnectionFailure = retryOnConnectionFailure
+    cli.connectionPool = new ConnectionPool(
+            okHttpClientConfigurationProperties.connectionPool.maxIdleConnections,
+            okHttpClientConfigurationProperties.connectionPool.keepAliveDurationMs)
+    cli.retryOnConnectionFailure = okHttpClientConfigurationProperties.retryOnConnectionFailure
     return cli
   }
 
@@ -66,8 +61,8 @@ class Front50Config {
   }
 
   @Bean
-  Endpoint front50Endpoint(@Value('${front50.baseUrl}') String front50BaseUrl) {
-    newFixedEndpoint(front50BaseUrl)
+  Endpoint front50Endpoint(Front50ConfigurationProperties front50ConfigurationProperties) {
+    newFixedEndpoint(front50ConfigurationProperties.baseUrl)
   }
 
   @Bean

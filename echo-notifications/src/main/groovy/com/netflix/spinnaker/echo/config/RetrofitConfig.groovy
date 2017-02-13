@@ -20,6 +20,7 @@ package com.netflix.spinnaker.echo.config
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import retrofit.RestAdapter
@@ -27,6 +28,7 @@ import retrofit.client.Client
 import retrofit.client.OkClient
 
 @Configuration
+@EnableConfigurationProperties(SpinnakerConfigurationProperties)
 @Slf4j
 @CompileStatic
 class RetrofitConfig {

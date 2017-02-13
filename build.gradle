@@ -16,7 +16,7 @@
 
 buildscript {
     ext {
-        springBootVersion = "1.2.8.RELEASE"
+        springBootVersion = "1.4.4.RELEASE"
     }
     repositories {
         jcenter()
@@ -36,7 +36,7 @@ allprojects {
     group = "com.netflix.spinnaker.echo"
 
     ext {
-        spinnakerDependenciesVersion = project.hasProperty('spinnakerDependenciesVersion') ? project.property('spinnakerDependenciesVersion') : '0.71.0'
+        spinnakerDependenciesVersion = project.hasProperty('spinnakerDependenciesVersion') ? project.property('spinnakerDependenciesVersion') : '0.85.0-SNAPSHOT'
     }
 
     def checkLocalVersions = [spinnakerDependenciesVersion: spinnakerDependenciesVersion]
@@ -65,15 +65,7 @@ allprojects {
       }
     }
 
-    configurations.all {
-        exclude group: 'org.mortbay.jetty', module: 'servlet-api'
-        exclude group: 'javax.servlet', module: 'servlet-api'
-        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-        exclude group: 'org.slf4j', module: 'slf4j-simple'
-        resolutionStrategy {
-            force 'com.google.guava:guava:15.0'
-        }
-    }
+    apply from: "${rootProject.projectDir}/configurations-all.gradle"
 }
 
 subprojects {

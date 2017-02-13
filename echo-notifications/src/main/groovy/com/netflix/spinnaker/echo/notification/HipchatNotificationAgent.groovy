@@ -16,13 +16,13 @@
 
 package com.netflix.spinnaker.echo.notification
 
+import com.netflix.spinnaker.echo.hipchat.HipchatConfigurationProperties
 import com.netflix.spinnaker.echo.hipchat.HipchatMessage
 import com.netflix.spinnaker.echo.hipchat.HipchatService
 import com.netflix.spinnaker.echo.model.Event
 import groovy.util.logging.Slf4j
 import org.apache.commons.lang.WordUtils
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 
@@ -34,8 +34,8 @@ class HipchatNotificationAgent extends AbstractEventNotificationAgent {
   @Autowired
   HipchatService hipchatService
 
-  @Value('${hipchat.token}')
-  String token
+  @Autowired
+  HipchatConfigurationProperties properties
 
   @Override
   void sendNotifications(Map preference, String application, Event event, Map config, String status) {
@@ -76,7 +76,7 @@ class HipchatNotificationAgent extends AbstractEventNotificationAgent {
 
       message +=
         """${WordUtils.capitalize(application)}'s <a href="${
-          spinnakerUrl
+          spinnakerProperties.baseUrl
         }/#/applications/${application}/${
           config.type == 'stage' ? 'executions/details' : config.link
         }/${event.content?.execution?.id}">${
@@ -86,7 +86,7 @@ class HipchatNotificationAgent extends AbstractEventNotificationAgent {
         }"""
 
       hipchatService.sendMessage(
-        token,
+        properties.token,
         preference.address,
         new HipchatMessage(
           message: message,

@@ -96,7 +96,7 @@ class EmailNotificationAgent extends AbstractEventNotificationAgent {
       "UTF-8",
       [
         event      : prettyPrint(toJson(event.content)),
-        url        : spinnakerUrl,
+        url        : spinnakerProperties.baseUrl,
         application: event.details?.application,
         executionId: event.content?.execution?.id,
         type       : type,

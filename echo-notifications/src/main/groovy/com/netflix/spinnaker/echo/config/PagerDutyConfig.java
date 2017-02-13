@@ -16,10 +16,12 @@
 
 package com.netflix.spinnaker.echo.config;
 
+import com.netflix.spinnaker.echo.pagerduty.PagerDutyConfigurationProperties;
 import com.netflix.spinnaker.echo.pagerduty.PagerDutyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import retrofit.Endpoint;
@@ -30,6 +32,7 @@ import static retrofit.Endpoints.newFixedEndpoint;
 
 @Configuration
 @ConditionalOnProperty("pagerDuty.enabled")
+@EnableConfigurationProperties(PagerDutyConfigurationProperties.class)
 public class PagerDutyConfig {
   private static final Logger log = LoggerFactory.getLogger(PagerDutyConfig.class);
 

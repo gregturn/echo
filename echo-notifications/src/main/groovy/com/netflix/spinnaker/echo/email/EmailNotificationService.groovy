@@ -18,23 +18,23 @@
 
 package com.netflix.spinnaker.echo.email
 
-import com.netflix.spinnaker.echo.notification.NotificationService
 import com.netflix.spinnaker.echo.api.Notification
+import com.netflix.spinnaker.echo.notification.NotificationService
 import com.netflix.spinnaker.echo.notification.NotificationTemplateEngine
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.stereotype.Component
 
 import javax.mail.internet.MimeMessage
-
 /**
  * Mail Sending Service
  */
 @Component
 @ConditionalOnProperty('mail.enabled')
+@EnableConfigurationProperties(MailConfigurationProperties)
 class EmailNotificationService implements NotificationService {
   private static Notification.Type TYPE = Notification.Type.EMAIL
 
@@ -44,8 +44,8 @@ class EmailNotificationService implements NotificationService {
   @Autowired
   NotificationTemplateEngine notificationTemplateEngine
 
-  @Value('${mail.from}')
-  String from
+  @Autowired
+  MailConfigurationProperties properties
 
   @Override
   boolean supportsType(Notification.Type type) {
@@ -75,7 +75,7 @@ class EmailNotificationService implements NotificationService {
     }
 
     if (to || cc) {
-      helper.setFrom(from)
+      helper.setFrom(properties.from)
       helper.setText(text)
       helper.setSubject(subject)
 

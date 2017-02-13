@@ -17,11 +17,11 @@
 package com.netflix.spinnaker.echo.notification
 
 import com.netflix.spinnaker.echo.model.Event
+import com.netflix.spinnaker.echo.twilio.TwilioConfigurationProperties
 import com.netflix.spinnaker.echo.twilio.TwilioService
 import groovy.util.logging.Slf4j
 import org.apache.commons.lang.WordUtils
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 
@@ -33,17 +33,14 @@ class TwilioNotificationAgent extends AbstractEventNotificationAgent {
   @Autowired
   TwilioService twilioService
 
-  @Value('${twilio.account}')
-  String account
-
-  @Value('${twilio.from}')
-  String from
+  @Autowired
+  TwilioConfigurationProperties properties
 
   @Override
   void sendNotifications(Map preference, String application, Event event, Map config, String status) {
     try {
       String name = event.content?.execution?.name ?: event.content?.execution?.description
-      String link = "${spinnakerUrl}/#/applications/${application}/${config.type == 'stage' ? 'executions/details' : config.link}/${event.content?.execution?.id}"
+      String link = "${spinnakerProperties.baseUrl}/#/applications/${application}/${config.type == 'stage' ? 'executions/details' : config.link}/${event.content?.execution?.id}"
 
       String buildInfo = ''
 
@@ -71,8 +68,8 @@ class TwilioNotificationAgent extends AbstractEventNotificationAgent {
         } ${link}"""
 
       twilioService.sendMessage(
-        account,
-        from,
+        properties.account,
+        properties.from,
         preference.address,
         message
       )

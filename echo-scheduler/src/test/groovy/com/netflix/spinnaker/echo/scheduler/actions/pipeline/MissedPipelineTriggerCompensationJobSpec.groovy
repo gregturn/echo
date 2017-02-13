@@ -16,6 +16,7 @@
 
 package com.netflix.spinnaker.echo.scheduler.actions.pipeline
 
+import com.netflix.spinnaker.echo.config.SchedulerConfigurationProperties
 import com.netflix.spinnaker.echo.model.Pipeline
 import com.netflix.spinnaker.echo.model.Trigger
 import com.netflix.spinnaker.echo.pipelinetriggers.PipelineCache
@@ -64,7 +65,10 @@ class MissedPipelineTriggerCompensationJobSpec extends Specification {
       triggerWindowFloor: getDateOffset(0),
       now: getDateOffset(50)
     )
-    def compensationJob = new MissedPipelineTriggerCompensationJob(scheduler, pipelineCache, orcaService, pipelineInitiator, counterService, 30000, 'America/Los_Angeles', dateContext)
+    def schedulerConfigurationProperties = new SchedulerConfigurationProperties()
+    schedulerConfigurationProperties.cron.timezone = 'America/Los_Angeles'
+    schedulerConfigurationProperties.compensationJob.windowMs = 30000
+    def compensationJob = new MissedPipelineTriggerCompensationJob(scheduler, pipelineCache, orcaService, pipelineInitiator, counterService, schedulerConfigurationProperties, dateContext)
 
     when:
     compensationJob.triggerMissedExecutions(pipelines)
@@ -101,7 +105,10 @@ class MissedPipelineTriggerCompensationJobSpec extends Specification {
       triggerWindowFloor: getDateOffset(0),
       now: getDateOffset(0)
     )
-    def compensationJob = new MissedPipelineTriggerCompensationJob(scheduler, pipelineCache, orcaService, pipelineInitiator, counterService, 30000, 'America/Los_Angeles', dateContext)
+    def schedulerConfigurationProperties = new SchedulerConfigurationProperties()
+    schedulerConfigurationProperties.cron.timezone = 'America/Los_Angeles'
+    schedulerConfigurationProperties.compensationJob.windowMs = 30000
+    def compensationJob = new MissedPipelineTriggerCompensationJob(scheduler, pipelineCache, orcaService, pipelineInitiator, counterService, schedulerConfigurationProperties, dateContext)
 
     when:
     compensationJob.triggerMissedExecutions(pipelines)

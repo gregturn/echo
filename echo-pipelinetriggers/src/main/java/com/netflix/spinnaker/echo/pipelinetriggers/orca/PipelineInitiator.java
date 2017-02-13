@@ -1,11 +1,13 @@
 package com.netflix.spinnaker.echo.pipelinetriggers.orca;
 
+import com.netflix.spinnaker.echo.config.OrcaConfigurationProperties;
+import com.netflix.spinnaker.echo.config.ServicesFiatConfigurationProperties;
 import com.netflix.spinnaker.echo.model.Pipeline;
 import com.netflix.spinnaker.echo.pipelinetriggers.orca.OrcaService.TriggerResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.metrics.CounterService;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 import rx.Observable;
 import rx.functions.Action1;
@@ -17,6 +19,7 @@ import javax.annotation.PostConstruct;
  */
 @Component
 @Slf4j
+@EnableConfigurationProperties(ServicesFiatConfigurationProperties.class)
 public class PipelineInitiator implements Action1<Pipeline> {
 
   private final CounterService counter;
@@ -27,12 +30,12 @@ public class PipelineInitiator implements Action1<Pipeline> {
   @Autowired
   public PipelineInitiator(CounterService counter,
                            OrcaService orca,
-                           @Value("${orca.enabled:true}") boolean enabled,
-                           @Value("${services.fiat.enabled:false}") boolean fiatEnabled) {
+                           OrcaConfigurationProperties orcaConfigurationProperties,
+                           ServicesFiatConfigurationProperties servicesFiatConfigurationProperties) {
     this.counter = counter;
     this.orca = orca;
-    this.enabled = enabled;
-    this.fiatEnabled = fiatEnabled;
+    this.enabled = orcaConfigurationProperties.getEnabled();
+    this.fiatEnabled = servicesFiatConfigurationProperties.isEnabled();
   }
 
   @PostConstruct

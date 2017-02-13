@@ -16,14 +16,13 @@
 
 package com.netflix.spinnaker.echo.config
 
-import static retrofit.Endpoints.newFixedEndpoint
-
-import org.apache.commons.codec.binary.Base64
 import com.netflix.spinnaker.echo.rest.RestService
+import com.netflix.spinnaker.retrofit.RetrofitConfigurationProperties
 import groovy.transform.CompileStatic
-import org.springframework.beans.factory.annotation.Value
+import org.apache.commons.codec.binary.Base64
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Scope
@@ -34,11 +33,13 @@ import retrofit.client.Client
 import retrofit.client.OkClient
 import retrofit.converter.JacksonConverter
 
+import static retrofit.Endpoints.newFixedEndpoint
 /**
  * Rest endpoint configuration
  */
 @Configuration
 @ConditionalOnProperty('rest.enabled')
+@EnableConfigurationProperties(RestProperties)
 @CompileStatic
 @SuppressWarnings('GStringExpressionWithinString')
 class RestConfig {
@@ -50,8 +51,8 @@ class RestConfig {
   }
 
   @Bean
-  LogLevel retrofitLogLevel(@Value('${retrofit.logLevel:BASIC}') String retrofitLogLevel) {
-    return LogLevel.valueOf(retrofitLogLevel)
+  LogLevel retrofitLogLevel(RetrofitConfigurationProperties retrofitConfigurationProperties) {
+    return retrofitConfigurationProperties.logLevel
   }
 
   @Bean

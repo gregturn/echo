@@ -15,13 +15,14 @@
  */
 
 package com.netflix.spinnaker.echo.notification
+
 import com.netflix.spinnaker.echo.model.Event
+import com.netflix.spinnaker.echo.slack.SlackConfigurationProperties
 import com.netflix.spinnaker.echo.slack.SlackMessage
 import com.netflix.spinnaker.echo.slack.SlackService
 import groovy.util.logging.Slf4j
 import org.apache.commons.lang.WordUtils
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 
@@ -33,8 +34,8 @@ class SlackNotificationAgent extends AbstractEventNotificationAgent {
   @Autowired
   SlackService slackService
 
-  @Value('${slack.token}')
-  String token
+  @Autowired
+  SlackConfigurationProperties properties
 
   @Override
   void sendNotifications(Map preference, String application, Event event, Map config, String status) {
@@ -74,7 +75,7 @@ class SlackNotificationAgent extends AbstractEventNotificationAgent {
 
       body +=
         """${WordUtils.capitalize(application)}'s <${
-          spinnakerUrl
+          spinnakerProperties.baseUrl
         }/#/applications/${application}/${
           config.type == 'stage' ? 'executions/details' : config.link
         }/${event.content?.execution?.id}|${
@@ -89,7 +90,7 @@ class SlackNotificationAgent extends AbstractEventNotificationAgent {
 
       String address = preference.address.startsWith('#') ? preference.address : "#${preference.address}"
 
-      slackService.sendMessage(token, new SlackMessage(body, color).buildMessage(), address, true)
+      slackService.sendMessage(properties.token, new SlackMessage(body, color).buildMessage(), address, true)
 
     } catch (Exception e) {
       log.error('failed to send slack message ', e)

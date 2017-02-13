@@ -6,6 +6,7 @@ import com.squareup.okhttp.OkHttpClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -17,9 +18,11 @@ import rx.Scheduler;
 import rx.schedulers.Schedulers;
 
 @Configuration
+@EnableConfigurationProperties(OrcaConfigurationProperties.class)
 @ComponentScan("com.netflix.spinnaker.echo.pipelinetriggers")
 @Slf4j
 public class PipelineTriggerConfiguration {
+
   private Client retrofitClient;
 
   @Autowired
@@ -28,8 +31,8 @@ public class PipelineTriggerConfiguration {
   }
 
   @Bean
-  public OrcaService orca(@Value("${orca.baseUrl}") final String endpoint) {
-    return bindRetrofitService(OrcaService.class, endpoint);
+  public OrcaService orca(OrcaConfigurationProperties orcaConfigurationProperties) {
+    return bindRetrofitService(OrcaService.class, orcaConfigurationProperties.getBaseUrl());
   }
 
   @Bean

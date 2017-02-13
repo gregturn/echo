@@ -16,6 +16,8 @@
 
 package com.netflix.spinnaker.echo.notification
 
+import com.netflix.spinnaker.echo.config.SpinnakerConfigurationProperties
+import com.netflix.spinnaker.echo.slack.SlackConfigurationProperties
 import groovy.json.JsonSlurper
 import com.netflix.spinnaker.echo.model.Event
 import com.netflix.spinnaker.echo.slack.SlackService
@@ -27,7 +29,11 @@ import spock.util.concurrent.BlockingVariable
 class SlackNotificationAgentSpec extends Specification {
 
   def slack = Mock(SlackService)
-  @Subject def agent = new SlackNotificationAgent(slackService: slack)
+  @Subject def agent = new SlackNotificationAgent(
+          slackService: slack,
+          properties: new SlackConfigurationProperties(token: "foo"),
+          spinnakerProperties: new SpinnakerConfigurationProperties(baseUrl: "SPINNAKER_URL")
+  )
 
   @Unroll
   def "sends correct message for #status status"() {
